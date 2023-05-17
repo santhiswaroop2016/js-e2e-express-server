@@ -12,10 +12,27 @@ pool:
 steps:
 - task: NodeTool@0
   inputs:
-    versionSpec: '10.x'
+    versionSource: 'spec'
+    versionSpec: '16.x'
+    checkLatest: true
   displayName: 'Install Node.js'
 
 - script: |
     npm install
     npm run build
   displayName: 'npm install and build'
+- task: CopyFiles@2
+  inputs:
+    sourceFolder: '$(Build.SourcesDirectory)'
+    contents: |
+       src/*
+       public/*
+    targetFolder: '$(Build.ArtifactStagingDirectory)'
+  displayName: 'Copy project files'
+
+- task: PublishPipelineArtifact@1
+  inputs:
+    targetPath: '$(Build.ArtifactStagingDirectory)'
+    artifact: 'e2e-server'
+    publishLocation: 'pipeline'
+  displayName: 'Publish npm artifact'
